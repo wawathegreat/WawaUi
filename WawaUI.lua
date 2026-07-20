@@ -5,6 +5,52 @@ local UserInputService = game:GetService("UserInputService")
 local Library = {}
 Library.__index = Library
 
+-- Color Themes Table
+Library.Themes = {
+	["Midnight"] = {
+		Main = Color3.fromRGB(15, 15, 25),
+		SideBar = Color3.fromRGB(10, 10, 18),
+		TitleBar = Color3.fromRGB(20, 20, 32),
+		Content = Color3.fromRGB(5, 5, 10),
+		ItemBg = Color3.fromRGB(22, 22, 35),
+		Text = Color3.fromRGB(255, 255, 255),
+		SubText = Color3.fromRGB(140, 140, 170),
+		Accent = Color3.fromRGB(114, 137, 218),
+		ButtonUnselected = Color3.fromRGB(25, 25, 40)
+	},
+	["Dark"] = {
+		Main = Color3.fromRGB(34, 34, 34),
+		SideBar = Color3.fromRGB(27, 27, 27),
+		TitleBar = Color3.fromRGB(40, 40, 40),
+		Content = Color3.fromRGB(0, 0, 0),
+		ItemBg = Color3.fromRGB(30, 30, 30),
+		Text = Color3.fromRGB(255, 255, 255),
+		SubText = Color3.fromRGB(160, 160, 160),
+		Accent = Color3.fromRGB(0, 170, 255),
+		ButtonUnselected = Color3.fromRGB(45, 45, 45)
+	},
+	["White"] = {
+		Main = Color3.fromRGB(240, 240, 240),
+		SideBar = Color3.fromRGB(220, 220, 220),
+		TitleBar = Color3.fromRGB(255, 255, 255),
+		Content = Color3.fromRGB(255, 255, 255),
+		ItemBg = Color3.fromRGB(225, 225, 225),
+		Text = Color3.fromRGB(20, 20, 20),
+		SubText = Color3.fromRGB(90, 90, 90),
+		Accent = Color3.fromRGB(0, 120, 215),
+		ButtonUnselected = Color3.fromRGB(200, 200, 200)
+	}
+}
+
+-- Utility: Helper to format Roblox asset IDs safely
+local function formatAssetId(id)
+	if not id then return "rbxassetid://6031068426" end
+	if type(id) == "number" or (type(id) == "string" and tonumber(id)) then
+		return "rbxassetid://" .. tostring(id)
+	end
+	return id
+end
+
 -- Utility: Apply UICorner
 local function applyCorner(instance, radius)
 	local corner = Instance.new("UICorner")
@@ -26,7 +72,16 @@ end
 
 -- Create Window Function
 function Library.CreateWindow(titleText)
-	local window = {}
+	local window = {
+		CurrentTheme = Library.Themes["Dark"],
+		ThemeableObjects = {},
+		TabCount = 0
+	}
+
+	local function registerThemeObject(object, colorProperty, themeKey)
+		table.insert(window.ThemeableObjects, {Object = object, Property = colorProperty, Key = themeKey})
+		object[colorProperty] = window.CurrentTheme[themeKey]
+	end
 
 	-- ScreenGui setup
 	local player = Players.LocalPlayer
@@ -41,33 +96,32 @@ function Library.CreateWindow(titleText)
 	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	mainFrame.Size = UDim2.new(0, 480, 0, 310)
-	mainFrame.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
 	mainFrame.ClipsDescendants = true
 	mainFrame.Parent = screenGui
 	applyCorner(mainFrame, UDim.new(0, 8))
+	registerThemeObject(mainFrame, "BackgroundColor3", "Main")
 
 	local uiListLayout = Instance.new("UIListLayout")
 	uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	uiListLayout.Parent = mainFrame
 
-	-- TitleBar with 8px Corner Radius
+	-- TitleBar
 	local titleBar = Instance.new("Frame")
 	titleBar.Name = "TitleBar"
 	titleBar.LayoutOrder = 1
 	titleBar.Size = UDim2.new(1, 0, 0, 36)
-	titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	titleBar.Parent = mainFrame
 	applyCorner(titleBar, UDim.new(0, 8))
+	registerThemeObject(titleBar, "BackgroundColor3", "TitleBar")
 
-	-- Filler Frame to square off the bottom corners of TitleBar
 	local titleBarFiller = Instance.new("Frame")
 	titleBarFiller.Name = "TitleBarFiller"
 	titleBarFiller.AnchorPoint = Vector2.new(0, 1)
 	titleBarFiller.Position = UDim2.new(0, 0, 1, 0)
 	titleBarFiller.Size = UDim2.new(1, 0, 0, 8)
-	titleBarFiller.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	titleBarFiller.BorderSizePixel = 0
 	titleBarFiller.Parent = titleBar
+	registerThemeObject(titleBarFiller, "BackgroundColor3", "TitleBar")
 
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Name = "TitleText"
@@ -76,21 +130,21 @@ function Library.CreateWindow(titleText)
 	titleLabel.BackgroundTransparency = 1
 	titleLabel.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	titleLabel.Text = titleText or "Window Title"
-	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	titleLabel.TextSize = 16
 	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	titleLabel.ZIndex = 2
 	titleLabel.Parent = titleBar
+	registerThemeObject(titleLabel, "TextColor3", "Text")
 
 	local separator = Instance.new("Frame")
 	separator.Name = "Separator"
 	separator.AnchorPoint = Vector2.new(0.5, 1)
 	separator.Position = UDim2.new(0.5, 0, 1, 0)
 	separator.Size = UDim2.new(1, 0, 0, 2)
-	separator.BackgroundColor3 = Color3.fromRGB(27, 42, 53)
 	separator.BorderSizePixel = 0
 	separator.ZIndex = 3
 	separator.Parent = titleBar
+	registerThemeObject(separator, "BackgroundColor3", "Accent")
 
 	-- Body Container
 	local body = Instance.new("Frame")
@@ -104,15 +158,17 @@ function Library.CreateWindow(titleText)
 	-- SideBar
 	local sideBar = Instance.new("Frame")
 	sideBar.Name = "SideBar"
+	sideBar.BorderSizePixel = 0
 	sideBar.Position = UDim2.new(0, 8, 0, 8)
-	sideBar.Size = UDim2.new(0, 60, 1, -16)
-	sideBar.BackgroundColor3 = Color3.fromRGB(27, 27, 27)
+	sideBar.Size = UDim2.new(0, 52, 1, -16)
+	sideBar.Selectable = false
 	sideBar.Parent = body
 	applyCorner(sideBar, UDim.new(0, 6))
-	applyPadding(sideBar, 8, 8, 4, 4)
+	applyPadding(sideBar, 6, 6, 4, 4)
+	registerThemeObject(sideBar, "BackgroundColor3", "SideBar")
 
 	local sideBarLayout = Instance.new("UIListLayout")
-	sideBarLayout.Padding = UDim.new(0, 6)
+	sideBarLayout.Padding = UDim.new(0, 8)
 	sideBarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	sideBarLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	sideBarLayout.Parent = sideBar
@@ -120,35 +176,33 @@ function Library.CreateWindow(titleText)
 	-- Content Area
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Position = UDim2.new(0, 76, 0, 8)
-	contentArea.Size = UDim2.new(1, -84, 1, -16)
-	contentArea.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	contentArea.Position = UDim2.new(0, 68, 0, 8)
+	contentArea.Size = UDim2.new(1, -76, 1, -16)
 	contentArea.BackgroundTransparency = 0.2
 	contentArea.ClipsDescendants = true
 	contentArea.Parent = body
 	applyCorner(contentArea, UDim.new(0, 6))
+	registerThemeObject(contentArea, "BackgroundColor3", "Content")
 
-	-- Bottom-Right Toggle Button (Opens & Closes Main GUI)
+	-- Bottom-Right Toggle Button
 	local toggleButton = Instance.new("TextButton")
 	toggleButton.Name = "ToggleButton"
 	toggleButton.AnchorPoint = Vector2.new(1, 1)
 	toggleButton.Position = UDim2.new(1, -10, 1, -10)
 	toggleButton.Size = UDim2.new(0, 72, 0, 32)
-	toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	toggleButton.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	toggleButton.Text = "CLOSE"
-	toggleButton.TextColor3 = Color3.fromRGB(243, 243, 243)
 	toggleButton.TextSize = 14
 	toggleButton.Parent = screenGui
+	applyCorner(toggleButton, UDim.new(0, 6))
+	registerThemeObject(toggleButton, "BackgroundColor3", "Main")
+	registerThemeObject(toggleButton, "TextColor3", "Text")
 
 	local toggleStroke = Instance.new("UIStroke")
-	toggleStroke.Color = Color3.fromRGB(60, 60, 60)
 	toggleStroke.Thickness = 1
 	toggleStroke.Parent = toggleButton
+	registerThemeObject(toggleStroke, "Color", "Accent")
 
-	applyCorner(toggleButton, UDim.new(0, 6))
-
-	-- Open/Close Click Handler
 	toggleButton.MouseButton1Click:Connect(function()
 		mainFrame.Visible = not mainFrame.Visible
 		toggleButton.Text = mainFrame.Visible and "CLOSE" or "OPEN"
@@ -161,22 +215,46 @@ function Library.CreateWindow(titleText)
 	window.ToggleButton = toggleButton
 	window.ActiveTab = nil
 
+	function window:SetTheme(themeName)
+		local theme = Library.Themes[themeName]
+		if not theme then return end
+
+		window.CurrentTheme = theme
+		for _, data in ipairs(window.ThemeableObjects) do
+			if data.Object and data.Object.Parent then
+				data.Object[data.Property] = theme[data.Key]
+			end
+		end
+	end
+
 	-- Method: Add Tab
 	function window:AddTab(iconId)
 		local tab = {}
+		window.TabCount = window.TabCount + 1
+		local tabIndex = window.TabCount
 
-		local iconButton = Instance.new("ImageButton")
-		iconButton.Name = "TabIcon"
-		iconButton.Size = UDim2.new(0, 44, 0, 44)
-		iconButton.BackgroundTransparency = 1
-		iconButton.Image = iconId or "rbxassetid://13060262529"
-		iconButton.HoverImage = iconId or "rbxassetid://13060262529"
-		iconButton.Parent = window.SideBar
-		applyCorner(iconButton, UDim.new(0, 6))
+		local tabButton = Instance.new("ImageButton")
+		tabButton.Name = "TabButton_" .. tostring(tabIndex)
+		tabButton.Size = UDim2.new(0, 40, 0, 40)
+		tabButton.BorderSizePixel = 0
+		tabButton.LayoutOrder = tabIndex
+		tabButton.Image = ""
+		tabButton.Parent = window.SideBar
+		applyCorner(tabButton, UDim.new(0, 6))
 
-		-- Adjusted ScrollingFrame size & scrollbar thickness
+		local icon = Instance.new("ImageLabel")
+		icon.Name = "Icon"
+		icon.AnchorPoint = Vector2.new(0.5, 0.5)
+		icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+		icon.Size = UDim2.new(0, 24, 0, 24)
+		icon.BackgroundTransparency = 1
+		icon.Image = formatAssetId(iconId)
+		icon.ScaleType = Enum.ScaleType.Fit
+		icon.Parent = tabButton
+		registerThemeObject(icon, "ImageColor3", "Text")
+
 		local itemList = Instance.new("ScrollingFrame")
-		itemList.Name = "ItemList"
+		itemList.Name = "ItemList_" .. tostring(tabIndex)
 		itemList.AnchorPoint = Vector2.new(0.5, 0.5)
 		itemList.Position = UDim2.new(0.5, 0, 0.5, 0)
 		itemList.Size = UDim2.new(1, -16, 1, -16)
@@ -185,12 +263,11 @@ function Library.CreateWindow(titleText)
 		itemList.ScrollingDirection = Enum.ScrollingDirection.Y
 		itemList.AutomaticCanvasSize = Enum.AutomaticSize.None
 		itemList.CanvasSize = UDim2.new(0, 0, 0, 0)
-		itemList.ScrollBarImageColor3 = Color3.fromRGB(120, 120, 120)
 		itemList.ScrollBarThickness = 4
 		itemList.Visible = false
 		itemList.Parent = window.ContentArea
-
 		applyPadding(itemList, 6, 6, 6, 6)
+		registerThemeObject(itemList, "ScrollBarImageColor3", "SubText")
 
 		local itemLayout = Instance.new("UIListLayout")
 		itemLayout.Padding = UDim.new(0, 6)
@@ -198,48 +275,61 @@ function Library.CreateWindow(titleText)
 		itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		itemLayout.Parent = itemList
 
-		-- Dynamically resize CanvasSize when items are added or expanded
-		local function updateCanvasSize()
+		itemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 			itemList.CanvasSize = UDim2.new(0, 0, 0, itemLayout.AbsoluteContentSize.Y + 16)
+		end)
+
+		local function updateTabVisuals()
+			for _, btn in ipairs(window.SideBar:GetChildren()) do
+				if btn:IsA("ImageButton") then
+					btn.BackgroundColor3 = window.CurrentTheme.ButtonUnselected
+					btn.BackgroundTransparency = 0.4
+				end
+			end
+			tabButton.BackgroundColor3 = window.CurrentTheme.Accent
+			tabButton.BackgroundTransparency = 0
 		end
 
-		itemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
-
-		iconButton.MouseButton1Click:Connect(function()
+		tabButton.MouseButton1Click:Connect(function()
 			for _, child in ipairs(window.ContentArea:GetChildren()) do
 				if child:IsA("ScrollingFrame") then
 					child.Visible = false
 				end
 			end
+			updateTabVisuals()
 			itemList.Visible = true
 		end)
 
 		if not window.ActiveTab then
 			window.ActiveTab = itemList
 			itemList.Visible = true
+			updateTabVisuals()
+		else
+			tabButton.BackgroundColor3 = window.CurrentTheme.ButtonUnselected
+			tabButton.BackgroundTransparency = 0.4
 		end
 
-		-- Method: Add Toggle Switch
+		-- Method: Add Toggle
 		function tab:AddToggle(title, description, defaultValue, callback)
 			local toggled = defaultValue or false
 
 			local itemFrame = Instance.new("Frame")
 			itemFrame.Name = "ToggleItem"
 			itemFrame.Size = UDim2.new(1, -12, 0, 48)
-			itemFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 			itemFrame.Parent = itemList
 			applyCorner(itemFrame)
 			applyPadding(itemFrame, 6, 6, 10, 10)
+			registerThemeObject(itemFrame, "BackgroundColor3", "ItemBg")
 
 			local titleLbl = Instance.new("TextLabel")
 			titleLbl.Size = UDim2.new(0.7, 0, 0, 18)
 			titleLbl.BackgroundTransparency = 1
 			titleLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 			titleLbl.Text = title or "Toggle Item"
-			titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 			titleLbl.TextSize = 14
 			titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			titleLbl.Parent = itemFrame
+			registerThemeObject(titleLbl, "TextColor3", "Text")
 
 			local descLbl = Instance.new("TextLabel")
 			descLbl.Position = UDim2.new(0, 0, 0, 18)
@@ -247,16 +337,16 @@ function Library.CreateWindow(titleText)
 			descLbl.BackgroundTransparency = 1
 			descLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 			descLbl.Text = description or ""
-			descLbl.TextColor3 = Color3.fromRGB(160, 160, 160)
 			descLbl.TextSize = 11
 			descLbl.TextXAlignment = Enum.TextXAlignment.Left
 			descLbl.Parent = itemFrame
+			registerThemeObject(descLbl, "TextColor3", "SubText")
 
 			local switchFrame = Instance.new("Frame")
 			switchFrame.AnchorPoint = Vector2.new(1, 0.5)
 			switchFrame.Position = UDim2.new(1, 0, 0.5, 0)
 			switchFrame.Size = UDim2.new(0, 46, 0, 24)
-			switchFrame.BackgroundColor3 = toggled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(20, 20, 20)
+			switchFrame.BackgroundColor3 = toggled and window.CurrentTheme.Accent or Color3.fromRGB(20, 20, 20)
 			switchFrame.Parent = itemFrame
 			applyCorner(switchFrame, UDim.new(0, 24))
 
@@ -274,21 +364,15 @@ function Library.CreateWindow(titleText)
 			clickBtn.Text = ""
 			clickBtn.Parent = switchFrame
 
-			local function updateToggle()
+			clickBtn.MouseButton1Click:Connect(function()
+				toggled = not toggled
 				local targetPos = toggled and UDim2.new(1, -20, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
-				local targetColor = toggled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(20, 20, 20)
+				local targetColor = toggled and window.CurrentTheme.Accent or Color3.fromRGB(20, 20, 20)
 
 				TweenService:Create(ball, TweenInfo.new(0.2), {Position = targetPos}):Play()
 				TweenService:Create(switchFrame, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
 
-				if callback then
-					task.spawn(callback, toggled)
-				end
-			end
-
-			clickBtn.MouseButton1Click:Connect(function()
-				toggled = not toggled
-				updateToggle()
+				if callback then task.spawn(callback, toggled) end
 			end)
 
 			return itemFrame
@@ -302,21 +386,21 @@ function Library.CreateWindow(titleText)
 			local dropdownItem = Instance.new("Frame")
 			dropdownItem.Name = "DropdownItem"
 			dropdownItem.Size = UDim2.new(1, -12, 0, 48)
-			dropdownItem.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 			dropdownItem.ClipsDescendants = true
 			dropdownItem.Parent = itemList
 			applyCorner(dropdownItem)
 			applyPadding(dropdownItem, 6, 6, 10, 10)
+			registerThemeObject(dropdownItem, "BackgroundColor3", "ItemBg")
 
 			local titleLbl = Instance.new("TextLabel")
 			titleLbl.Size = UDim2.new(1, -20, 0, 18)
 			titleLbl.BackgroundTransparency = 1
 			titleLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 			titleLbl.Text = title or "Dropdown Menu"
-			titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 			titleLbl.TextSize = 14
 			titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			titleLbl.Parent = dropdownItem
+			registerThemeObject(titleLbl, "TextColor3", "Text")
 
 			local descLbl = Instance.new("TextLabel")
 			descLbl.Position = UDim2.new(0, 0, 0, 18)
@@ -324,10 +408,10 @@ function Library.CreateWindow(titleText)
 			descLbl.BackgroundTransparency = 1
 			descLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 			descLbl.Text = "Select an option..."
-			descLbl.TextColor3 = Color3.fromRGB(160, 160, 160)
 			descLbl.TextSize = 11
 			descLbl.TextXAlignment = Enum.TextXAlignment.Left
 			descLbl.Parent = dropdownItem
+			registerThemeObject(descLbl, "TextColor3", "SubText")
 
 			local openBtn = Instance.new("TextButton")
 			openBtn.Size = UDim2.new(1, 0, 0, 36)
@@ -335,7 +419,6 @@ function Library.CreateWindow(titleText)
 			openBtn.Text = ""
 			openBtn.Parent = dropdownItem
 
-			-- Expandable Sub-Container
 			local listFrame = Instance.new("Frame")
 			listFrame.Position = UDim2.new(0, 0, 0, 38)
 			listFrame.Size = UDim2.new(1, 0, 0, #options * 30)
@@ -349,30 +432,26 @@ function Library.CreateWindow(titleText)
 			for _, optionText in ipairs(options) do
 				local optBtn = Instance.new("TextButton")
 				optBtn.Size = UDim2.new(1, 0, 0, 26)
-				optBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-				optBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
 				optBtn.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 				optBtn.Text = optionText
 				optBtn.TextSize = 11
 				optBtn.Parent = listFrame
 				applyCorner(optBtn, UDim.new(0, 4))
+				registerThemeObject(optBtn, "BackgroundColor3", "Main")
+				registerThemeObject(optBtn, "TextColor3", "Text")
 
 				optBtn.MouseButton1Click:Connect(function()
 					descLbl.Text = "Selected: " .. optionText
 					isOpen = false
-					local tween = TweenService:Create(dropdownItem, TweenInfo.new(0.2), {Size = UDim2.new(1, -12, 0, 48)})
-					tween:Play()
-					if callback then
-						task.spawn(callback, optionText)
-					end
+					TweenService:Create(dropdownItem, TweenInfo.new(0.2), {Size = UDim2.new(1, -12, 0, 48)}):Play()
+					if callback then task.spawn(callback, optionText) end
 				end)
 			end
 
 			openBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
 				local targetHeight = isOpen and (44 + #options * 30) or 48
-				local tween = TweenService:Create(dropdownItem, TweenInfo.new(0.25), {Size = UDim2.new(1, -12, 0, targetHeight)})
-				tween:Play()
+				TweenService:Create(dropdownItem, TweenInfo.new(0.25), {Size = UDim2.new(1, -12, 0, targetHeight)}):Play()
 			end)
 
 			return dropdownItem
@@ -384,28 +463,27 @@ function Library.CreateWindow(titleText)
 			max = max or 100
 			defaultValue = math.clamp(defaultValue or min, min, max)
 
-			local isOpen = false
-			local dragging = false
+			local isOpen, dragging = false, false
 			local currentValue = defaultValue
 
 			local sliderItem = Instance.new("Frame")
 			sliderItem.Name = "SliderItem"
 			sliderItem.Size = UDim2.new(1, -12, 0, 48)
-			sliderItem.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 			sliderItem.ClipsDescendants = true
 			sliderItem.Parent = itemList
 			applyCorner(sliderItem)
 			applyPadding(sliderItem, 6, 6, 10, 10)
+			registerThemeObject(sliderItem, "BackgroundColor3", "ItemBg")
 
 			local titleLbl = Instance.new("TextLabel")
 			titleLbl.Size = UDim2.new(1, -20, 0, 18)
 			titleLbl.BackgroundTransparency = 1
 			titleLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 			titleLbl.Text = title or "Slider"
-			titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 			titleLbl.TextSize = 14
 			titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			titleLbl.Parent = sliderItem
+			registerThemeObject(titleLbl, "TextColor3", "Text")
 
 			local descLbl = Instance.new("TextLabel")
 			descLbl.Position = UDim2.new(0, 0, 0, 18)
@@ -413,10 +491,10 @@ function Library.CreateWindow(titleText)
 			descLbl.BackgroundTransparency = 1
 			descLbl.FontFace = Font.new("rbxasset://fonts/families/DenkOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 			descLbl.Text = "Value: " .. tostring(currentValue)
-			descLbl.TextColor3 = Color3.fromRGB(160, 160, 160)
 			descLbl.TextSize = 11
 			descLbl.TextXAlignment = Enum.TextXAlignment.Left
 			descLbl.Parent = sliderItem
+			registerThemeObject(descLbl, "TextColor3", "SubText")
 
 			local openBtn = Instance.new("TextButton")
 			openBtn.Size = UDim2.new(1, 0, 0, 36)
@@ -431,32 +509,28 @@ function Library.CreateWindow(titleText)
 			sliderContainer.Parent = sliderItem
 
 			local track = Instance.new("Frame")
-			track.Name = "Track"
 			track.AnchorPoint = Vector2.new(0.5, 0.5)
 			track.Position = UDim2.new(0.5, 0, 0.5, 0)
 			track.Size = UDim2.new(1, 0, 0, 6)
-			track.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 			track.Parent = sliderContainer
 			applyCorner(track, UDim.new(0, 3))
+			registerThemeObject(track, "BackgroundColor3", "Main")
 
 			local fill = Instance.new("Frame")
-			fill.Name = "Fill"
 			fill.Size = UDim2.new((defaultValue - min) / (max - min), 0, 1, 0)
-			fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 			fill.Parent = track
 			applyCorner(fill, UDim.new(0, 3))
+			registerThemeObject(fill, "BackgroundColor3", "Accent")
 
 			local knob = Instance.new("Frame")
-			knob.Name = "Knob"
 			knob.AnchorPoint = Vector2.new(0.5, 0.5)
 			knob.Position = UDim2.new(1, 0, 0.5, 0)
 			knob.Size = UDim2.new(0, 14, 0, 14)
-			knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			knob.Parent = fill
 			applyCorner(knob, UDim.new(0, 7))
+			registerThemeObject(knob, "BackgroundColor3", "Text")
 
 			local sliderBtn = Instance.new("TextButton")
-			sliderBtn.Name = "SliderBtn"
 			sliderBtn.Size = UDim2.new(1, 0, 1, 0)
 			sliderBtn.BackgroundTransparency = 1
 			sliderBtn.Text = ""
@@ -473,9 +547,7 @@ function Library.CreateWindow(titleText)
 
 				if value ~= currentValue then
 					currentValue = value
-					if callback then
-						task.spawn(callback, currentValue)
-					end
+					if callback then task.spawn(callback, currentValue) end
 				end
 			end
 
@@ -501,8 +573,7 @@ function Library.CreateWindow(titleText)
 			openBtn.MouseButton1Click:Connect(function()
 				isOpen = not isOpen
 				local targetHeight = isOpen and 76 or 48
-				local tween = TweenService:Create(sliderItem, TweenInfo.new(0.25), {Size = UDim2.new(1, -12, 0, targetHeight)})
-				tween:Play()
+				TweenService:Create(sliderItem, TweenInfo.new(0.25), {Size = UDim2.new(1, -12, 0, targetHeight)}):Play()
 			end)
 
 			return sliderItem
