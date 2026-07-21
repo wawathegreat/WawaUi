@@ -1,8 +1,8 @@
-WawaUI
+# WawaUI
 
 A simple and lightweight Roblox UI library focused on being easy to use while looking clean.
 
-Features
+## Features
 
 - Clean interface
 - Multiple tabs
@@ -13,25 +13,25 @@ Features
 - Animated controls
 - Easy to use
 
----
+## Loading the Library
 
-Loading the Library
-
+```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wawathegreat/WawaUi/main/WawaUI.lua"))()
+```
 
----
+## Creating a Window
 
-Creating a Window
-
+```lua
 local Window = Library.CreateWindow("My Script")
+```
 
----
+## Themes
 
-Themes
-
-Window:SetTheme("Dark")
-Window:SetTheme("White")
-Window:SetTheme("Midnight")
+```lua
+Window:SetTheme("Dark")      -- Optional
+Window:SetTheme("White")     -- Optional
+Window:SetTheme("Midnight")  -- Optional
+```
 
 Available themes:
 
@@ -41,24 +41,25 @@ Available themes:
 
 Changing the theme is optional.
 
----
-
-Creating Tabs
+## Creating Tabs
 
 With an icon:
 
+```lua
 local Main = Window:AddTab(6031068426)
+```
 
 Without an icon:
 
+```lua
 local Main = Window:AddTab()
+```
 
 You can create as many tabs as you want.
 
----
+## Toggle
 
-Toggle
-
+```lua
 Main:AddToggle(
     "ESP",
     "Toggle player ESP.", -- Optional description
@@ -67,11 +68,11 @@ Main:AddToggle(
         print(Value)
     end
 )
+```
 
----
+## Dropdown
 
-Dropdown
-
+```lua
 Main:AddDropdown(
     "Theme",
     {
@@ -83,11 +84,11 @@ Main:AddDropdown(
         print(Option)
     end
 )
+```
 
----
+## Slider
 
-Slider
-
+```lua
 Main:AddSlider(
     "WalkSpeed",
     16, -- Minimum
@@ -97,46 +98,54 @@ Main:AddSlider(
         print(Value)
     end
 )
+```
 
----
+## API
 
-API
+### Create Window
 
-Create Window
-
+```lua
 Library.CreateWindow(Title)
+```
 
-Set Theme
+### Set Theme
 
+```lua
 Window:SetTheme(Theme)
+```
 
-Create Tab
+### Create Tab
 
+```lua
 Window:AddTab(IconId)
+```
 
-Toggle
+### Toggle
 
+```lua
 Tab:AddToggle(Title, Description, DefaultValue, Callback)
+```
 
-Dropdown
+### Dropdown
 
+```lua
 Tab:AddDropdown(Title, Options, Callback)
+```
 
-Slider
+### Slider
 
+```lua
 Tab:AddSlider(Title, Minimum, Maximum, DefaultValue, Callback)
+```
 
----
+## Themes
 
-Themes
+| Available | Theme |
+|:---------:|:------|
+| ✅ | Dark |
+| ✅ | White |
+| ✅ | Midnight |
 
-Theme| Name
-✅| Dark
-✅| White
-✅| Midnight
+## Example
 
----
-
-Example
-
-An "Example.lua" file is included in the repository demonstrating every feature currently available in WawaUI.
+An `Example.lua` file is included in the repository demonstrating every feature currently available in WawaUI.
