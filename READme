@@ -1,17 +1,12 @@
 # WawaUI
 
-A simple and lightweight Roblox UI library focused on being easy to use while looking clean.
+A simple and lightweight Roblox UI library.
 
 ## Features
 
 - Clean interface
 - Multiple tabs
 - Toggle elements
-- Dropdown menus
-- Sliders
-- Built-in themes
-- Animated controls
-- Easy to use
 
 ## Loading the Library
 
@@ -28,124 +23,7 @@ local Window = Library.CreateWindow("My Script")
 ## Themes
 
 ```lua
-Window:SetTheme("Dark")      -- Optional
-Window:SetTheme("White")     -- Optional
-Window:SetTheme("Midnight")  -- Optional
+Window:SetTheme("Dark")
+Window:SetTheme("White")
+Window:SetTheme("Midnight")
 ```
-
-Available themes:
-
-- Dark
-- White
-- Midnight
-
-Changing the theme is optional.
-
-## Creating Tabs
-
-With an icon:
-
-```lua
-local Main = Window:AddTab(6031068426)
-```
-
-Without an icon:
-
-```lua
-local Main = Window:AddTab()
-```
-
-You can create as many tabs as you want.
-
-## Toggle
-
-```lua
-Main:AddToggle(
-    "ESP",
-    "Toggle player ESP.", -- Optional description
-    false, -- Default value
-    function(Value)
-        print(Value)
-    end
-)
-```
-
-## Dropdown
-
-```lua
-Main:AddDropdown(
-    "Theme",
-    {
-        "Dark",
-        "White",
-        "Midnight"
-    },
-    function(Option)
-        print(Option)
-    end
-)
-```
-
-## Slider
-
-```lua
-Main:AddSlider(
-    "WalkSpeed",
-    16, -- Minimum
-    100, -- Maximum
-    16, -- Default value
-    function(Value)
-        print(Value)
-    end
-)
-```
-
-## API
-
-### Create Window
-
-```lua
-Library.CreateWindow(Title)
-```
-
-### Set Theme
-
-```lua
-Window:SetTheme(Theme)
-```
-
-### Create Tab
-
-```lua
-Window:AddTab(IconId)
-```
-
-### Toggle
-
-```lua
-Tab:AddToggle(Title, Description, DefaultValue, Callback)
-```
-
-### Dropdown
-
-```lua
-Tab:AddDropdown(Title, Options, Callback)
-```
-
-### Slider
-
-```lua
-Tab:AddSlider(Title, Minimum, Maximum, DefaultValue, Callback)
-```
-
-## Themes
-
-| Available | Theme |
-|:---------:|:------|
-| ✅ | Dark |
-| ✅ | White |
-| ✅ | Midnight |
-
-## Example
-
-An `Example.lua` file is included in the repository demonstrating every feature currently available in WawaUI.
