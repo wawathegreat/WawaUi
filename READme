@@ -1,29 +1,28 @@
-# WawaUI
+# GitHub Markdown Cheat Sheet
 
-A simple and lightweight Roblox UI library.
+## Headings
 
-## Features
+# Heading 1
 
-- Clean interface
-- Multiple tabs
-- Toggle elements
+## Heading 2
 
-## Loading the Library
+### Heading 3
 
-```lua
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wawathegreat/WawaUi/main/WawaUI.lua"))()
+## Bold
+
+**Bold text**
+
+## Code Block
+
+``` lua
+print("Hello, world!")
 ```
 
-## Creating a Window
+## List
 
-```lua
-local Window = Library.CreateWindow("My Script")
-```
+-   Item 1
+-   Item 2
 
-## Themes
+## Link
 
-```lua
-Window:SetTheme("Dark")
-Window:SetTheme("White")
-Window:SetTheme("Midnight")
-```
+[GitHub](https://github.com)
