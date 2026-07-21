@@ -88,7 +88,7 @@ function Library.CreateWindow(titleText)
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "CustomLibraryGui"
 	screenGui.ResetOnSpawn = false
-	screenGui.Parent = player:WaitForChild("PlayerGui")
+	screenGui.Parent = gethui()
 
 	-- Main Frame
 	local mainFrame = Instance.new("Frame")
