@@ -183,13 +183,12 @@ function Library.CreateWindow(titleText)
 	contentArea.Parent = body
 	applyCorner(contentArea, UDim.new(0, 6))
 	registerThemeObject(contentArea, "BackgroundColor3", "Content")
--- Theme selector side button + theme tab (insert after registerThemeObject(contentArea, "BackgroundColor3", "Content"))
 local themeSideBtn = Instance.new("ImageButton")
 themeSideBtn.Name = "ThemeButton"
 themeSideBtn.Size = UDim2.new(0, 40, 0, 40)
 themeSideBtn.BorderSizePixel = 0
 themeSideBtn.LayoutOrder = window.TabCount + 1
-themeSideBtn.Image = "" -- optional icon asset id
+themeSideBtn.Image = ""
 themeSideBtn.Parent = window.SideBar
 applyCorner(themeSideBtn, UDim.new(0, 6))
 registerThemeObject(themeSideBtn, "BackgroundColor3", "ButtonUnselected")
@@ -200,12 +199,11 @@ themeIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 themeIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
 themeIcon.Size = UDim2.new(0, 24, 0, 24)
 themeIcon.BackgroundTransparency = 1
-themeIcon.Image = "" -- optional icon asset
+themeIcon.Image = ""
 themeIcon.ScaleType = Enum.ScaleType.Fit
 themeIcon.Parent = themeSideBtn
 registerThemeObject(themeIcon, "ImageColor3", "Text")
 
--- Create the theme tab (hidden by default)
 local themeTab = Instance.new("ScrollingFrame")
 themeTab.Name = "ThemeTab"
 themeTab.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -232,7 +230,6 @@ themeLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     themeTab.CanvasSize = UDim2.new(0, 0, 0, themeLayout.AbsoluteContentSize.Y + 16)
 end)
 
--- Populate theme options from Library.Themes
 for themeName, _ in pairs(Library.Themes) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -12, 0, 36)
@@ -245,16 +242,13 @@ for themeName, _ in pairs(Library.Themes) do
     registerThemeObject(btn, "TextColor3", "Text")
 
     btn.MouseButton1Click:Connect(function()
-        -- hide other content tabs
         for _, child in ipairs(window.ContentArea:GetChildren()) do
             if child:IsA("ScrollingFrame") then
                 child.Visible = false
             end
         end
-        -- show theme tab and apply theme
         themeTab.Visible = true
         window:SetTheme(themeName)
-        -- update sidebar visuals (match existing updateTabVisuals behavior)
         for _, sbtn in ipairs(window.SideBar:GetChildren()) do
             if sbtn:IsA("ImageButton") then
                 sbtn.BackgroundColor3 = window.CurrentTheme.ButtonUnselected
@@ -266,15 +260,12 @@ for themeName, _ in pairs(Library.Themes) do
     end)
 end
 
--- Side button click behavior (toggle theme tab)
 themeSideBtn.MouseButton1Click:Connect(function()
-    -- hide other content tabs
     for _, child in ipairs(window.ContentArea:GetChildren()) do
         if child:IsA("ScrollingFrame") then
             child.Visible = false
         end
     end
-    -- show theme tab and update visuals
     themeTab.Visible = true
     for _, sbtn in ipairs(window.SideBar:GetChildren()) do
         if sbtn:IsA("ImageButton") then
